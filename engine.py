@@ -12,8 +12,14 @@ class Ship:
     def compute_indexes(self):
         start_index = self.row * 15 + self.col
         if self.orientation == "h":
+            if start_index +self.size -1 >224:
+                self.col = max(0,14 - (self.size -1))
+                start_index = self.row *15 +self.col
             return[start_index + i for i in range(self.size)]
         elif self.orientation =="v":
+            if self.row +self.size -1 >14:
+                self.row = max(0,14 - (self.size -1))
+                start_index = self.row * 15 + self.col
             return [start_index + i *15 for i in range(self.size)]
 class Player:
     def __init__(self):
@@ -32,7 +38,7 @@ class Player:
                 possible = True
                 for i in ship.indexes:
 
-                    if i>=225:
+                    if i>=224:
                         possible = False
                         break
 
@@ -121,29 +127,29 @@ class Game:
         player = self.player1 if self.player1_turn else self.player2
         opponent = self.player2 if self.player1_turn else self.player1
 
-  # Get current state as a tuple
+        # Get current state as a tuple
         state = tuple(player.search)
 
-  # Initialize Q-values for current state if not already present
+        # Initialize Q-values for current state if not already present
         if state not in self.q_table:
             self.q_table[state] = [0] * 225
         nearby_bonus = 0.1
-  # Epsilon-greedy action selection
+        # Epsilon-greedy action selection
         if random.random() < self.epsilon:
         # Explore - choose random unknown position
             action = random.choice([i for i, x in enumerate(player.search) if x == "U"])
         else:
-    # Exploit - choose action with highest Q-value
+            # Exploit - choose action with highest Q-value
             q_values = self.q_table[state]
             action = np.argmax(q_values)
 
-  # Make the move and get the reward
+        # Make the move and get the reward
         self.make_move(action)
         reward = 1 if player.search[action] == "H" else -1
         if player.search[action] == "S":
             reward += 4  # Bonus reward for sinking a ship
 
-  # Update Q-value based on reward and next state
+        # Update Q-value based on reward and next state
         new_state = tuple(player.search)
         if new_state not in self.q_table:
             self.q_table[new_state] = [0] * 225
@@ -166,27 +172,6 @@ class Game:
 
         # Find all "H" squares on the board
         hit_squares = [i for i, x in enumerate(player.search) if x == "H"]
-
-        # If there's a hit, prioritize unexplored squares near it
-        # if hit_squares:
-        #  # Get all unknown squares
-        #     unknown = [i for i, x in enumerate(player.search) if x == "U"]
-        #     unknown_w_neighbors_hits1 = []
-        #     unknown_w_neighbors_hits2 = []
-        #     for u in unknown:
-        #         if u+1 in hit_squares or u-1 in hit_squares or u+15 in hit_squares or u-15 in hit_squares:
-        #             unknown_w_neighbors_hits1.append(u)
-        #         if u+2 in hit_squares or u-2 in hit_squares or u+30 in hit_squares or u-30 in hit_squares:
-        #             unknown_w_neighbors_hits2.append(u)
-        #     #pick "U" square with direct and level2 neighbor both marked sa "H"
-        #     for u in unknown:
-        #         if u in unknown_w_neighbors_hits1 and u in unknown_w_neighbors_hits2:
-        #             self.make_move(u)
-        #             return
-        #     if len(unknown_w_neighbors_hits1) > 0:
-        #         self.make_move(random.choice(unknown_w_neighbors_hits1))
-        #         return
-
         if hit_squares:
                 # Calculate distances only for valid unknown squares
             valid_unknown_squares = [i for i in [i for i, x in enumerate(player.search) if x == "U"] if 0 <= i < 225]  # Check for valid board positions
