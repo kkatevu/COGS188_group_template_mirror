@@ -14,8 +14,8 @@ WIDTH = SQ_SIZE * 15 * 2 + H_MARGIN
 HEIGHT = SQ_SIZE * 15 * 2 + V_MARGIN
 INDENT = 5
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-HUMAN1 = False
-HUMAN2 = False
+HUMAN1 = True
+HUMAN2 = True
 
 #colors
 GREY = (40,50,60)
